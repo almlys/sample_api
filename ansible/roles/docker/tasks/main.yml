@@ -1,0 +1,41 @@
+---
+
+- name: Add backports repository
+  apt_repository: repo='deb http://ftp.debian.org/debian jessie-backports main contrib non-free' state=present
+
+- name: Add contrib repos
+  apt_repository: repo='deb http://httpredir.debian.org/debian jessie contrib non-free' state=present
+
+
+- name: Install packages
+  apt: name={{item}} state=installed update_cache=yes
+  with_items:
+    - apt-transport-https
+    - ca-certificates
+    - curl
+    - software-properties-common
+
+- name: Add new key
+  apt_key: url="https://download.docker.com/linux/debian/gpg" state=present
+
+- name: Add oficial Docker repo
+  apt_repository: repo="deb [arch=amd64] https://download.docker.com/linux/debian jessie stable" state=present
+
+- name: Update Packages
+  apt:
+    update_cache: yes
+    upgrade: dist
+
+- name: Install packages
+  apt: name={{item}} state=installed
+  with_items:
+    - python-setuptools
+    - docker-ce
+    - virtualbox-guest-utils
+
+- name: Install pip
+  easy_install:
+    name: pip
+
+- name: Install docker-compose
+  pip: name="docker-compose" state=present

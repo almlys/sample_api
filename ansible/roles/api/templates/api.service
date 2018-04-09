@@ -1,0 +1,15 @@
+[Unit]
+Description=My API Service
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=on-failure
+ReestartSec=10
+WorkingDirectory=/vagrant/docker
+ExecStartPre=/usr/local/bin/docker-compose pull
+ExecStart=/usr/local/bin/docker-compose up
+ExecStop=/usr/local/bin/docker-compose stop
+
+[Install]
+WantedBy=local.target

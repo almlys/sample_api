@@ -1,0 +1,7 @@
+---
+- name: Setup Docker and Deploy app
+  become: true
+  hosts: all
+  roles:
+    - { role: docker, tags: ['docker']}
+    - { role: api, tags: ['api']}

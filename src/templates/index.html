@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sample REST API (Test)</title>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+          integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+
+
+    <script>
+        // Decided to use jquery, to keep it simple.
+        // Just define some functions to consume the REST API
+
+        $(document).ready(function () {
+
+            var usernameField = "input[name='username']";
+            var passwordField = "input[name='password']";
+            var phoneField = "input[name='phone']";
+
+            function notify(msg) {
+                $('#notification').html(msg);
+            }
+
+            function create_user(user) {
+                $.ajax({
+                    url: 'user',
+                    type: 'POST',
+                    data: {
+                        'id': user.username,
+                        'password': user.password,
+                        'phone': user.phone
+                    },
+                    success: function (result) {
+                        if (result.success) {
+                            notify("User " + user.username + " created successfully!");
+                            $(usernameField).val('');
+                            $(passwordField).val('');
+                            $(phoneField).val('');
+                        }
+                        else
+                            notify("Cannot create user: " + user.username + ", reason: " + result.reason);
+
+                    },
+                    error: function (result) {
+                        notify("Cannot create user: " + user.username);
+                    }
+                });
+            }
+
+            function get_user(username) {
+                $.ajax({
+                    url: 'user/' + username,
+                    type: 'GET',
+                    success: function (result) {
+                        if (result.success) {
+                            notify("User " + username + " read successfully!");
+                            $(usernameField).val(result.user.username);
+                            $(passwordField).val(result.user.password);
+                            $(phoneField).val(result.user.phone);
+                        }
+                        else
+                            notify("Cannot get user: " + username + ", reason: " + result.reason);
+
+                    },
+                    error: function (result) {
+                        notify("Cannot get user: " + username);
+                    }
+                });
+            }
+
+            function delete_user(username) {
+                $.ajax({
+                    url: 'user/' + username,
+                    type: 'DELETE',
+                    success: function (result) {
+                        if (result.success) {
+                            notify("User " + username + " deleted successfully!");
+                            $(usernameField).val('');
+                            $(passwordField).val('');
+                            $(phoneField).val('');
+                        }
+                        else
+                            notify("Cannot delete user: " + username + ", reason: " + result.reason);
+
+                    },
+                    error: function (result) {
+                        notify("Cannot delete user: " + username);
+                    }
+                });
+            }
+
+            $('button#new').click(function () {
+                create_user({
+                    'username': $(usernameField).val(),
+                    'password': $(passwordField).val(),
+                    'phone': $(phoneField).val()
+                });
+                return false;
+            });
+
+            $('button#get').click(function () {
+                get_user($(usernameField).val());
+                return false;
+            });
+
+            $('button#delete').click(function () {
+                delete_user($(usernameField).val());
+                return false;
+            });
+        });
+    </script>
+
+</head>
+<body>
+
+<div class="container">
+    <div class="jumbotron text-center row">
+        <h1>Test REST API</h1>
+        <p>This is the main page of a simple REST API built with Flask and Python</p>
+        <br/>
+        <div style="max-width:500px" class="center-block">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Username" name="username">
+                <div class="input-group-btn">
+                    <button class="btn btn-success" id="new">Create</button>
+                    <button class="btn btn-info" id="get">Get</button>
+                    <button class="btn btn-danger" id="delete">Delete</button>
+                </div>
+            </div>
+            <input type="password" class="form-control" placeholder="Your password" name="password">
+            <input type="text" class="form-control" placeholder="Your phone" name="phone">
+
+            <p class="bg-info" id="notification">
+
+            </p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

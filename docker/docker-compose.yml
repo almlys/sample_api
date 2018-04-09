@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+
+  mariadb:
+    image: mariadb:10.1
+    environment:
+      - MYSQL_ROOT_PASSWORD=!123
+      - MYSQL_DATABASE=api_db
+      - MYSQL_USER=api
+      - MYSQL_PASSWORD=!456
+    ports:
+      - "127.0.0.1:3306:3306"
+    volumes:
+      - mariadb_vol:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    links:
+      - mariadb:db
+    ports:
+      - 8081:80
+
+  api:
+    build:
+      context: ../
+      dockerfile: docker/api/Dockerfile
+    links:
+      - mariadb:db
+    ports:
+      - 8080:80
+#    volumes:
+#      - ../src:/app
+
+volumes:
+  mariadb_vol:

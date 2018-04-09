@@ -1,0 +1,33 @@
+---
+
+- name: Setup API service
+  template: src='templates/api.service' dest='/lib/systemd/system/api.service'
+
+- name: link systemd
+  file: src="/lib/systemd/system/api.service" dest="/etc/systemd/system/multi-user.target.wants/api.service" state=link force=yes
+
+- name: Start api service within docker-compose
+  service: name="api.service" enabled=yes state=restarted sleep=10
+
+- name: Wait for database
+  wait_for:
+    host: localhost
+    port: 8080
+    delay: 30
+    timeout: 3600
+
+- name: Wait for database
+  wait_for:
+    host: localhost
+    port: 3306
+    delay: 30
+    timeout: 3600
+
+- name: Provision database
+  command: docker exec -i api_api_1 /app/main.py --init-database
+
+- name: Restart api service within docker-compose after db was initialized
+  service: name="api.service" enabled=yes state=restarted sleep=10
+
+#- name: Run unit tests
+#  command: docker exec -it api_api_1 python /app/flaskr_tests.py
